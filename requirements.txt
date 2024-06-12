@@ -2,4 +2,6 @@ streamlit
 numpy
 pandas
 Plotly
+bokeh
+graphviz
 
