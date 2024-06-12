@@ -1,5 +1,7 @@
 import streamlit as st 
 import pandas as pd
+import numpy as np
+import plotly.figure_factory as ff
 
 st.balloons()
 st.markdown("# Data Evaluation App")
@@ -106,4 +108,37 @@ df_plot = new_df[new_df['Category']!=''].Category.value_counts().reset_index()
 st.bar_chart(df_plot, x = 'Category', y = 'count')
 
 st.write("Here we are getting started with streamlit! Happy Streamlit-ing! :balloon:")
+
+st.title('web 3')
+
+chart_data = pd.DataFrame(
+     np.random.randn(6, 3),
+     columns=['a', 'b', 'c'])
+
+
+option = st.selectbox(
+    "How would you like to be contacted?",
+    ("area", "table", "line", "chart"))
+
+st.write("You selected:", option)
+if option =="area":
+    st.area_chart(chart_data)
+
+elif option =="table":
+    st.table(chart_data)
+
+elif option =="line":
+    st.line_chart(chart_data)
+
+elif option =="chart":
+    st.bar_chart(chart_data)
+
+
+if "counter" not in st.session_state:
+    st.session_state.counter = 0
+
+st.session_state.counter += 1
+
+st.header(f"This page has run {st.session_state.counter} times.")
+st.button("Run it again")
 
