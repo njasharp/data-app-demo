@@ -14,7 +14,7 @@ chart_data = pd.DataFrame(
 
 
 option = st.selectbox(
-    "How would you like to be contacted?",
+    "What chart would you like to see ?",
     ("area", "table", "line", "chart"))
 
 st.write("You selected:", option)
@@ -136,4 +136,4 @@ st.write("Here we are getting started with streamlit! Happy Streamlit-ing! :ball
 
 
 
-
+st.info("dw v1")
