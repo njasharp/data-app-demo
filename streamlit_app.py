@@ -6,6 +6,31 @@ import plotly.figure_factory as ff
 st.balloons()
 st.markdown("# Data Evaluation App")
 
+st.title('web 3')
+
+chart_data = pd.DataFrame(
+     np.random.randn(6, 3),
+     columns=['a', 'b', 'c'])
+
+
+option = st.selectbox(
+    "How would you like to be contacted?",
+    ("area", "table", "line", "chart"))
+
+st.write("You selected:", option)
+if option =="area":
+    st.area_chart(chart_data)
+
+elif option =="table":
+    st.table(chart_data)
+
+elif option =="line":
+    st.line_chart(chart_data)
+
+elif option =="chart":
+    st.bar_chart(chart_data)
+
+
 st.write("We are so glad to see you here. ✨ " 
          "This app is going to have a quick walkthrough app in streamlit")
 
@@ -109,31 +134,6 @@ st.bar_chart(df_plot, x = 'Category', y = 'count')
 
 st.write("Here we are getting started with streamlit! Happy Streamlit-ing! :balloon:")
 
-st.title('web 3')
-
-chart_data = pd.DataFrame(
-     np.random.randn(6, 3),
-     columns=['a', 'b', 'c'])
 
 
-option = st.selectbox(
-    "How would you like to be contacted?",
-    ("area", "table", "line", "chart"))
-
-st.write("You selected:", option)
-if option =="area":
-    st.area_chart(chart_data)
-
-elif option =="table":
-    st.table(chart_data)
-
-elif option =="line":
-    st.line_chart(chart_data)
-
-elif option =="chart":
-    st.bar_chart(chart_data)
-
-
-
-st.button("Run it again")
 
