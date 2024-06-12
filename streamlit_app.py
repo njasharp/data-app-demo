@@ -1,11 +1,11 @@
 import streamlit as st
 import numpy as np
 import pandas as pd
-import graphviz
+#import graphviz
 import plotly.figure_factory as ff
-from bokeh.plotting import figure
+#from bokeh.plotting import figure
 
-st.balloons()
+#st.balloons()
 st.markdown("# Data Evaluation App")
 
 st.title('web 3')
@@ -53,4 +53,4 @@ p = figure(
 
 p.line(x, y, legend_label='Trend', line_width=2)
 
-st.bokeh_chart(p, use_container_width=True)
+#st.bokeh_chart(p, use_container_width=True)
