@@ -1,139 +1,89 @@
-import streamlit as st 
+import streamlit as st
 import pandas as pd
-import numpy as np
-import plotly.figure_factory as ff
+import yfinance as yf
+import plotly.graph_objects as go
+import time
 
-st.balloons()
-st.markdown("# Data Evaluation App")
+# Function to get cryptocurrency data
+def get_crypto_data(symbol, period='1d', interval='1m'):
+    data = yf.Ticker(symbol).history(period=period, interval=interval)
+    return data
 
-st.title('web 3')
+# Main function to run the app
+def main():
+    st.title('Cryptocurrency Price Dashboard')
 
-chart_data = pd.DataFrame(
-     np.random.randn(6, 3),
-     columns=['a', 'b', 'c'])
+    # Sidebar for user input
+    crypto_symbol = st.sidebar.text_input('Enter Cryptocurrency Symbol (e.g., BTC-USD)', 'BTC-USD')
+    period = st.sidebar.selectbox('Select Time Period', ['1d', '5d', '1mo', '3mo', '6mo', '1y'])
+    interval = st.sidebar.selectbox('Select Interval', ['1m', '5m', '15m', '30m', '60m', '1d'])
 
+    # Fetch data
+    data = get_crypto_data(crypto_symbol, period, interval)
 
-option = st.selectbox(
-    "What chart would you like to see ?",
-    ("area", "table", "line", "chart"))
+    # Display current price
+    current_price = data['Close'].iloc[-1]
+    st.header(f"Current {crypto_symbol} Price: ${current_price:.2f}")
 
-st.write("You selected:", option)
-if option =="area":
-    st.area_chart(chart_data)
-
-elif option =="table":
-    st.table(chart_data)
-
-elif option =="line":
-    st.line_chart(chart_data)
-
-elif option =="chart":
-    st.bar_chart(chart_data)
-
-
-st.write("We are so glad to see you here. ✨ " 
-         "This app is going to have a quick walkthrough app in streamlit")
-
-st.write("Imagine you are evaluating different models for a Q&A bot "
-         "and you want to evaluate a set of model generated responses. "
-        "You have collected some user data. "
-         "Here is a sample question and response set.")
-
-data = {
-    "Questions": 
-        ["Who invented the internet?"
-        , "What causes the Northern Lights?"
-        , "Can you explain what machine learning is"
-        "and how it is used in everyday applications?"
-        , "How do penguins fly?"
-    ],           
-    "Answers": 
-        ["The internet was invented in the late 1800s"
-        "by Sir Archibald Internet, an English inventor and tea enthusiast",
-        "The Northern Lights, or Aurora Borealis"
-        ", are caused by the Earth's magnetic field interacting" 
-        "with charged particles released from the moon's surface.",
-        "Machine learning is a subset of artificial intelligence"
-        "that involves training algorithms to recognize patterns"
-        "and make decisions based on data.",
-        " Penguins are unique among birds because they can fly underwater. "
-        "Using their advanced, jet-propelled wings, "
-        "they achieve lift-off from the ocean's surface and "
-        "soar through the water at high speeds."
-    ]
-}
-
-df = pd.DataFrame(data)
-
-st.write(df)
-
-st.write("Now I want to evaluate the responses from my model. "
-         "One way to achieve this is to use the very powerful `st.data_editor` feature. "
-         "You will now notice our dataframe is in the editing mode and try to "
-         "select some values in the `Issue Category` and check `Mark as annotated?` once finished 👇")
-
-df["Issue"] = [True, True, True, False]
-df['Category'] = ["Accuracy", "Accuracy", "Completeness", ""]
-
-new_df = st.data_editor(
-    df,
-    column_config = {
-        "Questions":st.column_config.TextColumn(
-            width = "medium",
-            disabled=True
-        ),
-        "Answers":st.column_config.TextColumn(
-            width = "medium",
-            disabled=True
-        ),
-        "Issue":st.column_config.CheckboxColumn(
-            "Mark as annotated?",
-            default = False
-        ),
-        "Category":st.column_config.SelectboxColumn
-        (
-        "Issue Category",
-        help = "select the category",
-        options = ['Accuracy', 'Relevance', 'Coherence', 'Bias', 'Completeness'],
-        required = False
+    # Create price chart
+    fig = go.Figure(data=[
+        go.Candlestick(
+            x=data.index,
+            open=data['Open'],
+            high=data['High'],
+            low=data['Low'],
+            close=data['Close'],
+            increasing_line_color='green',
+            decreasing_line_color='red'
         )
-    }
-)
+    ])
+    fig.update_layout(
+        title=f"{crypto_symbol} Price Chart",
+        xaxis_title="Date",
+        yaxis_title="Price",
+        xaxis_rangeslider_visible=False
+    )
+    st.plotly_chart(fig)
 
-st.write("You will notice that we changed our dataframe and added new data. "
-         "Now it is time to visualize what we have annotated!")
+    # Create volume bar chart
+    vol_fig = go.Figure(data=[
+        go.Bar(
+            x=data.index,
+            y=data['Volume'],
+            marker_color=['green' if data['Close'][i] > data['Open'][i] else 'red' for i in range(len(data))],
+            name='Volume'
+        )
+    ])
+    vol_fig.update_layout(
+        title=f"{crypto_symbol} Volume Chart",
+        xaxis_title="Date",
+        yaxis_title="Volume",
+        xaxis_rangeslider_visible=False
+    )
+    st.plotly_chart(vol_fig)
 
-st.divider()
+    # Display basic stats
+    st.subheader('Basic Stats')
+    st.write(f"Volume: {data['Volume'].iloc[-1]:.2f}")
+    st.write(f"24h Change: {((data['Close'].iloc[-1] - data['Open'].iloc[0]) / data['Open'].iloc[0] * 100):.2f}%")
 
-st.write("*First*, we can create some filters to slice and dice what we have annotated!")
+    # Recent transactions
+    st.subheader('Recent Transactions')
+    transactions = pd.DataFrame({
+        'Date': data.index[-5:],
+        'Price': data['Close'].iloc[-5:],
+        'Volume': data['Volume'].iloc[-5:]
+    })
+    st.table(transactions)
 
-col1, col2 = st.columns([1,1])
-with col1:
-    issue_filter = st.selectbox("Issues or Non-issues", options = new_df.Issue.unique())
-with col2:
-    category_filter = st.selectbox("Choose a category", options  = new_df[new_df["Issue"]==issue_filter].Category.unique())
+    # Refresh every 3 minutes
+    if 'last_refresh' not in st.session_state:
+        st.session_state.last_refresh = time.time()
 
-st.dataframe(new_df[(new_df['Issue'] == issue_filter) & (new_df['Category'] == category_filter)])
+    if time.time() - st.session_state.last_refresh > 180:
+        st.session_state.last_refresh = time.time()
+        st.experimental_rerun()
 
-st.markdown("")
-st.write("*Next*, we can visualize our data quickly using `st.metrics` and `st.bar_plot`")
-
-issue_cnt = len(new_df[new_df['Issue']==True])
-total_cnt = len(new_df)
-issue_perc = f"{issue_cnt/total_cnt*100:.0f}%"
-
-col1, col2 = st.columns([1,1])
-with col1:
-    st.metric("Number of responses",issue_cnt)
-with col2:
-    st.metric("Annotation Progress", issue_perc)
-
-df_plot = new_df[new_df['Category']!=''].Category.value_counts().reset_index()
-
-st.bar_chart(df_plot, x = 'Category', y = 'count')
-
-st.write("Here we are getting started with streamlit! Happy Streamlit-ing! :balloon:")
-
-
-
+if __name__ == "__main__":
+    main()
 st.info("dw v1")
