@@ -16,7 +16,7 @@ def main():
     # Sidebar for user input
     crypto_symbol = st.sidebar.text_input('Enter Cryptocurrency Symbol (e.g., BTC-USD)', 'BTC-USD')
     period = st.sidebar.selectbox('Select Time Period', ['1d', '5d', '1mo', '3mo', '6mo', '1y'])
-    interval = st.sidebar.selectbox('Select Interval', ['1m', '5m', '15m', '30m', '60m', '1d'])
+    interval = st.sidebar.selectbox('Select Interval', ['1m', '5m', '15m', '30m', '60m', '1d'], index=4)
 
     # Fetch data
     data = get_crypto_data(crypto_symbol, period, interval)
