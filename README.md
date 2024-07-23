@@ -1,4 +1,5 @@
 demo data app - 
 
 https://data-app-demo.streamlit.app/
-![image](https://github.com/njasharp/data-app-demo/assets/39777038/d162db84-dde5-4f4d-a584-79654a7b3b02)
+![image](https://github.com/user-attachments/assets/61619ef4-e3bc-4c52-a5fa-6c9fb82fb960)
+
