@@ -5,7 +5,7 @@ import plotly.graph_objects as go
 import time
 
 # Function to get cryptocurrency data
-def get_crypto_data(symbol, period='1d', interval='1m'):
+def get_crypto_data(symbol, period='1d', interval='60m'):
     data = yf.Ticker(symbol).history(period=period, interval=interval)
     return data
 
